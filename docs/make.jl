@@ -8,10 +8,15 @@ using Documenter
 using Literate
 using LiteratePlotlyRepro
 using PlotlyJS
-using Base64
 
-const REPO = get(ENV, "GITHUB_REPOSITORY", "cncastillo/LiteratePlotlyRepro")
+const GITHUB_REPO = get(ENV, "GITHUB_REPOSITORY", "cncastillo/LiteratePlotlyRepro")
 const CI = get(ENV, "CI", "false") == "true"
+const REPO_REMOTE = Documenter.Remotes.GitHub(GITHUB_REPO)
+
+# --------------------------------------------------------------------------
+# Fix to https://github.com/fredrikekre/Literate.jl/issues/126
+# How would I capture PlotlyJS.jl figures as HTML?
+using Base64
 
 # Convert Plotly width/height values to valid CSS size values.
 to_css_size(x::Integer) = string(x, "px")
@@ -57,7 +62,9 @@ function Base.show(io::IO, ::MIME"text/html", fig::PlotlyJS.SyncPlot)
         """,
     )
 end
+# --------------------------------------------------------------------------
 
+# Back to regular documentation generation stuff.
 const LITERATE_DIR = joinpath(@__DIR__, "src", "literate")
 const GENERATED_DIR = joinpath(@__DIR__, "src", "generated")
 mkpath(GENERATED_DIR)
@@ -69,17 +76,15 @@ Literate.markdown(
     documenter=true,
 )
 
-makedocs(
-    modules=[LiteratePlotlyRepro],
-    sitename="LiteratePlotlyRepro.jl",
-    repo=Documenter.Remotes.GitHub(REPO),
-    format=Documenter.HTML(
-        prettyurls=CI,
-        edit_link="main",
-        repolink="https://github.com/$REPO",
+makedocs(;
+    modules = [LiteratePlotlyRepro],
+    sitename = "LiteratePlotlyRepro.jl",
+    repo = REPO_REMOTE,
+    format = Documenter.HTML(;
+        prettyurls = CI,
+        edit_link = "main",
     ),
-    remotes=nothing,
-    pages=[
+    pages = [
         "Home" => "index.md",
         "Examples" => [
             "Plotly Example" => "generated/plotly_example.md",
@@ -87,7 +92,7 @@ makedocs(
     ],
 )
 
-deploydocs(
-    repo="github.com/$REPO.git",
-    devbranch="main",
+deploydocs(;
+    repo = "github.com/$GITHUB_REPO.git",
+    devbranch = "main",
 )
