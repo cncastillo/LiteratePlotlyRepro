@@ -1,0 +1,4 @@
+name = "LiteratePlotlyRepro"
+uuid = "53be1847-7b4c-45ee-9b47-020af0fdc354"
+version = "0.1.0"
+authors = ["Carlos Castillo Passi <cacp@stanford.edu>"]
